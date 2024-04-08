@@ -1,0 +1,30 @@
+[supplier]
+street = "asdf street"
+city = "asdf city"
+county = "asdf county"
+country = "asdf country"
+fiscal_id = "1234"
+name = "ASDF S.R.L."
+iban = "IBAN123"
+
+[customer.C1]
+street = "qwer street"
+city = "qwer city"
+county = "qwer county"
+country = "qwer country"
+fiscal_id = "RO234"
+name = "QWER S.R.L"
+
+[default.lines]
+unit = "HUR"
+service = "Service"
+
+[default.due]
+days = 32
+
+[invoice.FACT001]
+customer = "C1"
+date = 2001-01-01
+lines = [
+    { amount = 10, price = 123.00 },
+]

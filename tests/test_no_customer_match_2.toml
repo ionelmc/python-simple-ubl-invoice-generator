@@ -1,0 +1,16 @@
+[supplier]
+street = "asdf street"
+city = "asdf city"
+county = "asdf county"
+country = "asdf country"
+fiscal_id = "1234"
+name = "ASDF S.R.L."
+iban = "IBAN123"
+
+[invoice.FACT001]
+date = 2001-01-01
+due = 2001-02-02
+customer = 'blabla'
+lines = [
+    { unit = "HUR", amount = 10, price = 123.00 }
+]
