@@ -69,14 +69,15 @@ Usage: ``sublig [-h] [--template TEMPLATE] [--output-path OUTPUT_PATH] [--verbos
 Command description.
 
 positional arguments:
-  CONFIG                Invoice TOML config file.
+  ``CONFIG``                Invoice TOML config file.
 
-options:
+options::
+
   -h, --help            show this help message and exit
   --template TEMPLATE, -t TEMPLATE
-                        Invoice UBL Jinja2 template. Default: /home/ionel/open-source/python-simple-ubl-invoice-generator/.tox/py311/lib/python3.11/site-packages/simple_ubl_invoice_generator/template.xml
+                        Invoice UBL Jinja2 template. Default: ???/site-packages/simple_ubl_invoice_generator/template.xml
   --output-path OUTPUT_PATH, -o OUTPUT_PATH
-                        Output path for resulting invoice XML files. Default: /home/ionel/open-source/python-simple-ubl-invoice-generator
+                        Output path for resulting invoice XML files. Default: $CWD
   --verbose, -v
   --version             show program's version number and exit
 
