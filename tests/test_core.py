@@ -119,7 +119,7 @@ def test_generation(tmp_path, tests_path, config):
         <cbc:InvoicedQuantity unitCode="HUR">10</cbc:InvoicedQuantity>
         <cbc:LineExtensionAmount currencyID="RON">1230.00</cbc:LineExtensionAmount>
         <cac:Item>
-            <cbc:Name>Servicii dezvoltare software</cbc:Name>
+            <cbc:Name>Service</cbc:Name>
             <cac:ClassifiedTaxCategory>
                 <cbc:ID>O</cbc:ID>
                 <cac:TaxScheme>
