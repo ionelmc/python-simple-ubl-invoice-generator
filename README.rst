@@ -44,8 +44,6 @@ Overview
     :alt: Commits since latest release
     :target: https://github.com/ionelmc/python-simple-ubl-invoice-generator/compare/v0.0.0...main
 
-
-
 .. end-badges
 
 An example package. Generated with cookiecutter-pylibrary.
@@ -63,19 +61,24 @@ You can also install the in-development version with::
 
     pip install https://github.com/ionelmc/python-simple-ubl-invoice-generator/archive/main.zip
 
-
 Documentation
 =============
 
+Usage: ``sublig [-h] [--template TEMPLATE] [--output-path OUTPUT_PATH] [--verbose] [--version] CONFIG``
 
-To use the project:
+Command description.
 
-.. code-block:: python
+positional arguments:
+  CONFIG                Invoice TOML config file.
 
-    import simple_ubl_invoice_generator
-    simple_ubl_invoice_generator.compute(...)
-
-
+options:
+  -h, --help            show this help message and exit
+  --template TEMPLATE, -t TEMPLATE
+                        Invoice UBL Jinja2 template. Default: /home/ionel/open-source/python-simple-ubl-invoice-generator/.tox/py311/lib/python3.11/site-packages/simple_ubl_invoice_generator/template.xml
+  --output-path OUTPUT_PATH, -o OUTPUT_PATH
+                        Output path for resulting invoice XML files. Default: /home/ionel/open-source/python-simple-ubl-invoice-generator
+  --verbose, -v
+  --version             show program's version number and exit
 
 Development
 ===========
