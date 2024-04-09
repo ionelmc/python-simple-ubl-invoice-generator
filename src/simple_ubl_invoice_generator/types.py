@@ -33,13 +33,17 @@ class CompleteInvoiceLine(TypedDict):
 
 
 class Invoice(TypedDict):
-    customer: str | Company
+    customer: NotRequired[str | Company]
+    correction: NotRequired[bool]
     date: date
     due: NotRequired[date]
     lines: list[InvoiceLine]
+    filename: NotRequired[str]
 
 
 class CompleteInvoice(TypedDict):
+    id: str
+    correction: bool
     customer: str | Company
     date: date
     due: date
@@ -55,14 +59,15 @@ class TimeDeltaArguments(TypedDict):
     days: int
 
 
-class InvoiceDefault(TypedDict):
+class InvoiceDefaults(TypedDict):
     lines: NotRequired[InvoiceLineDefaults]
     customer: NotRequired[str]
     due: NotRequired[TimeDeltaArguments]
+    filename: NotRequired[str]
 
 
 class Config(TypedDict):
     supplier: Supplier
-    customer: NotRequired[dict[str, Company]]
-    default: NotRequired[InvoiceDefault]
-    invoice: dict[str, Invoice]
+    customers: NotRequired[dict[str, Company]]
+    defaults: NotRequired[InvoiceDefaults]
+    invoices: dict[str, Invoice]

@@ -18,6 +18,10 @@ logger = getLogger(__name__)
 ONE = Decimal(1)
 
 
+class ValidationError(Exception):
+    pass
+
+
 def generate(template_path: Path, config: Config, destination_path: Path):
     try:
         check_type(config, Config)
@@ -33,38 +37,53 @@ def generate(template_path: Path, config: Config, destination_path: Path):
     )
 
     template = jinja_env.get_template(template_path.name)
-
-    defaults = config.get("default", {})
+    supplier = config["supplier"]
+    customers = config.get("customers", {})
+    defaults = config.get("defaults", {})
     invoice: CompleteInvoice
     line: CompleteInvoiceLine
-    for invoice_id, invoice in config["invoice"].items():
+    for invoice_id, invoice in config["invoices"].items():
+        filename_default = "{{ id }}.xml"
         for field, default in defaults.items():
-            if field == "due":
-                invoice["due"] = invoice["date"] + timedelta(**default)
-            elif field == "lines":
-                for line in invoice["lines"]:
-                    line.update(default)
-        customer = invoice["customer"]
+            match field:
+                case "due":
+                    invoice["due"] = invoice["date"] + timedelta(**default)
+                case "lines":
+                    for line in invoice["lines"]:
+                        line.update(default)
+                case "customer":
+                    invoice["customer"] = default
+                case "filename":
+                    filename_default = default
+                case _:
+                    raise NotImplementedError
+        if "customer" in invoice:
+            customer = invoice["customer"]
+        else:
+            raise ValidationError(f"Failed processing {invoice_id}: Missing customer field.")
         if isinstance(customer, str):
-            try:
-                invoice["customer"] = config["customer"][customer]
-            except KeyError as exc:
-                raise ValueError(f"Failed processing {invoice_id}: {exc!r}") from None
+            if customer in customers:
+                invoice["customer"] = customers[customer]
+            else:
+                raise ValidationError(f"Failed processing {invoice_id}: Customer {customer!r} not in customers table.")
         total = Decimal(0)
         for line in invoice["lines"]:
             line["total"] = line_total = line["amount"] * line["price"]
             total += line_total
         invoice["total"] = total.quantize(ONE, rounding=ROUND_DOWN)
+        invoice["id"] = invoice_id
+        invoice.setdefault("correction", False)
+        filename_template = jinja_env.from_string(invoice.pop("filename", filename_default))
+        filename = filename_template.render(**invoice)
         logger.debug("Compiled invoice %s: %s", invoice_id, pformat(invoice))
         try:
             check_type(invoice, CompleteInvoice)
         except TypeCheckError as exc:
-            raise ValueError(f"Failed processing {invoice_id}: {exc}") from None
+            raise ValidationError(f"Failed processing {invoice_id}: {exc}") from None
 
-        destination_path.joinpath(f"{invoice_id}.xml").write_text(
+        destination_path.joinpath(filename).write_text(
             template.render(
-                **invoice,
-                id=invoice_id,
-                supplier=config["supplier"],
+                invoice=invoice,
+                supplier=supplier,
             )
         )

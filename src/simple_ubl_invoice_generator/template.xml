@@ -5,10 +5,10 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2 http://docs.oasis-open.org/ubl/os-UBL-2.1/xsd/maindoc/UBL-Invoice-2.1.xsd">
     <cbc:CustomizationID>urn:cen.eu:en16931:2017#compliant#urn:efactura.mfinante.ro:CIUS-RO:1.0.1</cbc:CustomizationID>
-    <cbc:ID>{{ id }}</cbc:ID>
-    <cbc:IssueDate>{{ date }}</cbc:IssueDate>
-    <cbc:DueDate>{{ due }}</cbc:DueDate>
-    <cbc:InvoiceTypeCode>{% if correction %}384{% else %}380{% endif %}</cbc:InvoiceTypeCode>
+    <cbc:ID>{{ invoice.id }}</cbc:ID>
+    <cbc:IssueDate>{{ invoice.date }}</cbc:IssueDate>
+    <cbc:DueDate>{{ invoice.due }}</cbc:DueDate>
+    <cbc:InvoiceTypeCode>{% if invoice.correction %}384{% else %}380{% endif %}</cbc:InvoiceTypeCode>
     <cbc:Note></cbc:Note>
     <cbc:DocumentCurrencyCode>RON</cbc:DocumentCurrencyCode>
     <cac:AccountingSupplierParty>
@@ -34,16 +34,16 @@
     <cac:AccountingCustomerParty>
         <cac:Party>
             <cac:PostalAddress>
-                <cbc:StreetName>{{ customer.street }}</cbc:StreetName>
-                <cbc:CityName>{{ customer.city }}</cbc:CityName>
-                <cbc:CountrySubentity>{{ customer.county }}</cbc:CountrySubentity>
+                <cbc:StreetName>{{ invoice.customer.street }}</cbc:StreetName>
+                <cbc:CityName>{{ invoice.customer.city }}</cbc:CityName>
+                <cbc:CountrySubentity>{{ invoice.customer.county }}</cbc:CountrySubentity>
                 <cac:Country>
-                    <cbc:IdentificationCode>{{ customer.country }}</cbc:IdentificationCode>
+                    <cbc:IdentificationCode>{{ invoice.customer.country }}</cbc:IdentificationCode>
                 </cac:Country>
             </cac:PostalAddress>
             <cac:PartyLegalEntity>
-                <cbc:RegistrationName>{{ customer.name }}</cbc:RegistrationName>
-                <cbc:CompanyID>{{ customer.fiscal_id }}</cbc:CompanyID>
+                <cbc:RegistrationName>{{ invoice.customer.name }}</cbc:RegistrationName>
+                <cbc:CompanyID>{{ invoice.customer.fiscal_id }}</cbc:CompanyID>
             </cac:PartyLegalEntity>
         </cac:Party>
     </cac:AccountingCustomerParty>
@@ -60,7 +60,7 @@
     <cac:TaxTotal>
         <cbc:TaxAmount currencyID="RON">0.00</cbc:TaxAmount>
         <cac:TaxSubtotal>
-            <cbc:TaxableAmount currencyID="RON">{{ total }}</cbc:TaxableAmount>
+            <cbc:TaxableAmount currencyID="RON">{{ invoice.total }}</cbc:TaxableAmount>
             <cbc:TaxAmount currencyID="RON">0.00</cbc:TaxAmount>
             <cac:TaxCategory>
                 <cbc:ID>O</cbc:ID>
@@ -73,12 +73,12 @@
         </cac:TaxSubtotal>
     </cac:TaxTotal>
     <cac:LegalMonetaryTotal>
-        <cbc:LineExtensionAmount currencyID="RON">{{ total }}</cbc:LineExtensionAmount>
-        <cbc:TaxExclusiveAmount currencyID="RON">{{ total }}</cbc:TaxExclusiveAmount>
-        <cbc:TaxInclusiveAmount currencyID="RON">{{ total }}</cbc:TaxInclusiveAmount>
-        <cbc:PayableAmount currencyID="RON">{{ total }}</cbc:PayableAmount>
+        <cbc:LineExtensionAmount currencyID="RON">{{ invoice.total }}</cbc:LineExtensionAmount>
+        <cbc:TaxExclusiveAmount currencyID="RON">{{ invoice.total }}</cbc:TaxExclusiveAmount>
+        <cbc:TaxInclusiveAmount currencyID="RON">{{ invoice.total }}</cbc:TaxInclusiveAmount>
+        <cbc:PayableAmount currencyID="RON">{{ invoice.total }}</cbc:PayableAmount>
     </cac:LegalMonetaryTotal>
-{% for line in lines %}
+{% for line in invoice.lines %}
     <cac:InvoiceLine>
         <cbc:ID>{{ loop.index }}</cbc:ID>
         <cbc:InvoicedQuantity unitCode="HUR">{{ line.amount }}</cbc:InvoicedQuantity>
