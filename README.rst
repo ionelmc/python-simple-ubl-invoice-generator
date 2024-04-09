@@ -40,9 +40,9 @@ Overview
     :alt: Supported implementations
     :target: https://pypi.org/project/simple-ubl-invoice-generator
 
-.. |commits-since| image:: https://img.shields.io/github/commits-since/ionelmc/python-simple-ubl-invoice-generator/v0.1.0.svg
+.. |commits-since| image:: https://img.shields.io/github/commits-since/ionelmc/python-simple-ubl-invoice-generator/v0.2.0.svg
     :alt: Commits since latest release
-    :target: https://github.com/ionelmc/python-simple-ubl-invoice-generator/compare/v0.1.0...main
+    :target: https://github.com/ionelmc/python-simple-ubl-invoice-generator/compare/v0.2.0...main
 
 .. end-badges
 
