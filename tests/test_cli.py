@@ -10,7 +10,7 @@ def test_version():
 def test_bad_template(tmp_path, tests_path):
     with pytest.raises(subprocess.CalledProcessError) as exc:
         subprocess.check_output(
-            ["sublig", f"--template={tmp_path / 'foobar'}", tests_path / "test_no_defaults.toml"], text=True, stderr=subprocess.STDOUT
+            ["sublig", f"--template={tmp_path / 'foobar'}", tests_path / "test_filename.toml"], text=True, stderr=subprocess.STDOUT
         )
-    assert exc.value.returncode == 1
     assert exc.value.stdout.endswith("foobar does not exist.")
+    assert exc.value.returncode == 1

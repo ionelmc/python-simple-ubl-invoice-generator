@@ -1,33 +1,59 @@
 import tomllib
+import traceback
 from decimal import Decimal
-from operator import itemgetter
 
 import pytest
+from pydantic.version import version_short
 
 from simple_ubl_invoice_generator.cli import template_path
-from simple_ubl_invoice_generator.core import ValidationError
-from simple_ubl_invoice_generator.core import generate
+from simple_ubl_invoice_generator.generator import ConfigError
+from simple_ubl_invoice_generator.generator import generate
+
+pydantic_version = version_short()
 
 
 @pytest.mark.parametrize(
     ("config", "error"),
     [
-        ("test_no_customer_match_1.toml", "Failed processing FACT001: Missing customer field."),
-        ("test_no_customer_match_2.toml", "Failed processing FACT001: Customer 'blabla' not in customers table."),
+        ("test_validation_no_customer_match_1.toml", "Failed processing FACT001: Missing customer field."),
+        ("test_validation_no_customer_match_2.toml", "Failed processing FACT001: Customer 'blabla' not in customers table."),
+        (
+            "test_validation_missing_fields.toml",
+            """Failed validating config {'supplier': {'street': 'asdf street', 'city': 'asdf city', 'county': 'asdf county', 'country': 'asdf country', 'fiscal_id': '1234', 'name': 'ASDF S.R.L.'}, 'invoices': {'FACT002': {'customer': {'street': 'qwer street', 'city': 'qwer city', 'county': 'qwer county', 'country': 'qwer country', 'fiscal_id': 'RO234', 'name': 'QWER S.R.L'}}}}: 3 validation errors for Config
+invoices.FACT002.date
+  Field required [type=missing, input_value={'customer': {'street': '..., 'name': 'QWER S.R.L'}}, input_type=dict]"""
+            f"""
+    For further information visit https://errors.pydantic.dev/{pydantic_version}/v/missing"""
+            """
+invoices.FACT002.lines
+  Field required [type=missing, input_value={'customer': {'street': '..., 'name': 'QWER S.R.L'}}, input_type=dict]"""
+            f"""
+    For further information visit https://errors.pydantic.dev/{pydantic_version}/v/missing"""
+            """
+supplier.iban
+  Field required [type=missing, input_value={'street': 'asdf street',..., 'name': 'ASDF S.R.L.'}, input_type=dict]"""
+            f"""
+    For further information visit https://errors.pydantic.dev/{pydantic_version}/v/missing""",
+        ),
     ],
-    ids=itemgetter(0),
+    ids=[
+        "no_customer_match_1",
+        "no_customer_match_2",
+        "missing_fields",
+    ],
 )
-def test_no_customer_match(tmp_path, tests_path, config, error):
-    with pytest.raises(ValidationError) as exc:
+def test_validation(tmp_path, tests_path, config, error):
+    with pytest.raises(ConfigError) as exc:
         generate(template_path, tomllib.loads(tests_path.joinpath(config).read_text(), parse_float=Decimal), tmp_path)
+    traceback.print_exception(exc.value)
     assert str(exc.value) == error
 
 
 @pytest.mark.parametrize(
     "config",
     [
-        "test_no_defaults.toml",
-        "test_all_defaults.toml",
+        "test_generation_no_defaults.toml",
+        "test_generation_all_defaults.toml",
     ],
 )
 def test_generation(tmp_path, tests_path, config):
@@ -96,7 +122,7 @@ def test_generation(tmp_path, tests_path, config):
     <cac:TaxTotal>
         <cbc:TaxAmount currencyID="RON">0.00</cbc:TaxAmount>
         <cac:TaxSubtotal>
-            <cbc:TaxableAmount currencyID="RON">1230</cbc:TaxableAmount>
+            <cbc:TaxableAmount currencyID="RON">1230.00</cbc:TaxableAmount>
             <cbc:TaxAmount currencyID="RON">0.00</cbc:TaxAmount>
             <cac:TaxCategory>
                 <cbc:ID>O</cbc:ID>
@@ -109,10 +135,10 @@ def test_generation(tmp_path, tests_path, config):
         </cac:TaxSubtotal>
     </cac:TaxTotal>
     <cac:LegalMonetaryTotal>
-        <cbc:LineExtensionAmount currencyID="RON">1230</cbc:LineExtensionAmount>
-        <cbc:TaxExclusiveAmount currencyID="RON">1230</cbc:TaxExclusiveAmount>
-        <cbc:TaxInclusiveAmount currencyID="RON">1230</cbc:TaxInclusiveAmount>
-        <cbc:PayableAmount currencyID="RON">1230</cbc:PayableAmount>
+        <cbc:LineExtensionAmount currencyID="RON">1230.00</cbc:LineExtensionAmount>
+        <cbc:TaxExclusiveAmount currencyID="RON">1230.00</cbc:TaxExclusiveAmount>
+        <cbc:TaxInclusiveAmount currencyID="RON">1230.00</cbc:TaxInclusiveAmount>
+        <cbc:PayableAmount currencyID="RON">1230.00</cbc:PayableAmount>
     </cac:LegalMonetaryTotal>
     <cac:InvoiceLine>
         <cbc:ID>1</cbc:ID>
@@ -128,7 +154,7 @@ def test_generation(tmp_path, tests_path, config):
             </cac:ClassifiedTaxCategory>
         </cac:Item>
         <cac:Price>
-            <cbc:PriceAmount currencyID="RON">123.00</cbc:PriceAmount>
+            <cbc:PriceAmount currencyID="RON">123.0000</cbc:PriceAmount>
         </cac:Price>
     </cac:InvoiceLine>
 </Invoice>
@@ -206,7 +232,7 @@ def test_filename(tmp_path, tests_path):
     <cac:TaxTotal>
         <cbc:TaxAmount currencyID="RON">0.00</cbc:TaxAmount>
         <cac:TaxSubtotal>
-            <cbc:TaxableAmount currencyID="RON">1230</cbc:TaxableAmount>
+            <cbc:TaxableAmount currencyID="RON">1230.00</cbc:TaxableAmount>
             <cbc:TaxAmount currencyID="RON">0.00</cbc:TaxAmount>
             <cac:TaxCategory>
                 <cbc:ID>O</cbc:ID>
@@ -219,10 +245,10 @@ def test_filename(tmp_path, tests_path):
         </cac:TaxSubtotal>
     </cac:TaxTotal>
     <cac:LegalMonetaryTotal>
-        <cbc:LineExtensionAmount currencyID="RON">1230</cbc:LineExtensionAmount>
-        <cbc:TaxExclusiveAmount currencyID="RON">1230</cbc:TaxExclusiveAmount>
-        <cbc:TaxInclusiveAmount currencyID="RON">1230</cbc:TaxInclusiveAmount>
-        <cbc:PayableAmount currencyID="RON">1230</cbc:PayableAmount>
+        <cbc:LineExtensionAmount currencyID="RON">1230.00</cbc:LineExtensionAmount>
+        <cbc:TaxExclusiveAmount currencyID="RON">1230.00</cbc:TaxExclusiveAmount>
+        <cbc:TaxInclusiveAmount currencyID="RON">1230.00</cbc:TaxInclusiveAmount>
+        <cbc:PayableAmount currencyID="RON">1230.00</cbc:PayableAmount>
     </cac:LegalMonetaryTotal>
     <cac:InvoiceLine>
         <cbc:ID>1</cbc:ID>
@@ -238,7 +264,7 @@ def test_filename(tmp_path, tests_path):
             </cac:ClassifiedTaxCategory>
         </cac:Item>
         <cac:Price>
-            <cbc:PriceAmount currencyID="RON">123.00</cbc:PriceAmount>
+            <cbc:PriceAmount currencyID="RON">123.0000</cbc:PriceAmount>
         </cac:Price>
     </cac:InvoiceLine>
 </Invoice>
@@ -308,7 +334,7 @@ def test_filename(tmp_path, tests_path):
     <cac:TaxTotal>
         <cbc:TaxAmount currencyID="RON">0.00</cbc:TaxAmount>
         <cac:TaxSubtotal>
-            <cbc:TaxableAmount currencyID="RON">1230</cbc:TaxableAmount>
+            <cbc:TaxableAmount currencyID="RON">1230.00</cbc:TaxableAmount>
             <cbc:TaxAmount currencyID="RON">0.00</cbc:TaxAmount>
             <cac:TaxCategory>
                 <cbc:ID>O</cbc:ID>
@@ -321,10 +347,10 @@ def test_filename(tmp_path, tests_path):
         </cac:TaxSubtotal>
     </cac:TaxTotal>
     <cac:LegalMonetaryTotal>
-        <cbc:LineExtensionAmount currencyID="RON">1230</cbc:LineExtensionAmount>
-        <cbc:TaxExclusiveAmount currencyID="RON">1230</cbc:TaxExclusiveAmount>
-        <cbc:TaxInclusiveAmount currencyID="RON">1230</cbc:TaxInclusiveAmount>
-        <cbc:PayableAmount currencyID="RON">1230</cbc:PayableAmount>
+        <cbc:LineExtensionAmount currencyID="RON">1230.00</cbc:LineExtensionAmount>
+        <cbc:TaxExclusiveAmount currencyID="RON">1230.00</cbc:TaxExclusiveAmount>
+        <cbc:TaxInclusiveAmount currencyID="RON">1230.00</cbc:TaxInclusiveAmount>
+        <cbc:PayableAmount currencyID="RON">1230.00</cbc:PayableAmount>
     </cac:LegalMonetaryTotal>
     <cac:InvoiceLine>
         <cbc:ID>1</cbc:ID>
@@ -340,7 +366,7 @@ def test_filename(tmp_path, tests_path):
             </cac:ClassifiedTaxCategory>
         </cac:Item>
         <cac:Price>
-            <cbc:PriceAmount currencyID="RON">123.00</cbc:PriceAmount>
+            <cbc:PriceAmount currencyID="RON">123.0000</cbc:PriceAmount>
         </cac:Price>
     </cac:InvoiceLine>
 </Invoice>

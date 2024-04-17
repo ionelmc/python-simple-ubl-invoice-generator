@@ -1,0 +1,15 @@
+[supplier]
+street = "asdf street"
+city = "asdf city"
+county = "asdf county"
+country = "asdf country"
+fiscal_id = "1234"
+name = "ASDF S.R.L."
+
+[invoices.FACT002.customer]
+street = "qwer street"
+city = "qwer city"
+county = "qwer county"
+country = "qwer country"
+fiscal_id = "RO234"
+name = "QWER S.R.L"

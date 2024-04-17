@@ -22,7 +22,7 @@ from decimal import Decimal
 from pathlib import Path
 
 from . import __version__
-from .core import generate
+from .generator import generate
 from .utils import pformat
 
 logger = logging.getLogger(__name__)
