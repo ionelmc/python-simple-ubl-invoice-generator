@@ -85,11 +85,8 @@ class Invoice(Model):
             self.due = self.date + timedelta(**defaults.due.model_dump())
         if defaults.lines is not None:
             for line in self.lines:
-                print(line)
                 for field, value in defaults.lines.model_dump().items():
-                    print(field, getattr(line, field))
                     if getattr(line, field) is None:
-                        print("   <--", value)
                         setattr(line, field, value)
         if self.customer is None:
             self.customer = defaults.customer
