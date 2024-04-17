@@ -81,7 +81,7 @@
 {% for line in invoice.lines %}
     <cac:InvoiceLine>
         <cbc:ID>{{ loop.index }}</cbc:ID>
-        <cbc:InvoicedQuantity unitCode="HUR">{{ line.amount }}</cbc:InvoicedQuantity>
+        <cbc:InvoicedQuantity unitCode="{{ line.unit }}">{{ line.amount }}</cbc:InvoicedQuantity>
         <cbc:LineExtensionAmount currencyID="RON">{{ line.total }}</cbc:LineExtensionAmount>
         <cac:Item>
             <cbc:Name>{{ line.service }}</cbc:Name>
