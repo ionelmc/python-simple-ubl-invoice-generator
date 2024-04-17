@@ -2,6 +2,7 @@ import decimal
 import enum
 from datetime import date
 from datetime import timedelta
+from decimal import Decimal
 
 from pydantic import BaseModel
 from pydantic import ConfigDict
@@ -40,7 +41,7 @@ class RoundingValues(enum.StrEnum):
 
 
 class InvoiceLineDefaults(Model):
-    rounding: RoundingValues | None = None
+    rounding: tuple[Decimal | int, RoundingValues] | None = None
     unit: str | None = None
     service: str | None = None
 
@@ -54,16 +55,16 @@ class InvoiceDefaults(Model):
     due: TimeDeltaArguments | None = None
     filename: str | None = None
     lines: InvoiceLineDefaults | None = None
-    rounding: RoundingValues | None = None
+    rounding: tuple[Decimal | int, RoundingValues] | None = None
 
 
 class InvoiceLine(Model):
-    amount: decimal.Decimal | int
-    price: decimal.Decimal | int
-    rounding: RoundingValues | None = None
+    amount: Decimal | int
+    price: Decimal | int
+    rounding: tuple[Decimal | int, RoundingValues] | None = None
     service: str = None
     unit: str = None
-    total: decimal.Decimal = None
+    total: Decimal = None
 
 
 class Invoice(Model):
@@ -74,8 +75,8 @@ class Invoice(Model):
     due: date = None
     filename: str = None
     lines: list[InvoiceLine]
-    rounding: RoundingValues | None = None
-    total: decimal.Decimal = None
+    rounding: tuple[Decimal | int, RoundingValues] | None = None
+    total: Decimal = None
 
     def update_defaults(self, defaults: InvoiceDefaults):
         if self.filename is None:
@@ -84,8 +85,11 @@ class Invoice(Model):
             self.due = self.date + timedelta(**defaults.due.model_dump())
         if defaults.lines is not None:
             for line in self.lines:
+                print(line)
                 for field, value in defaults.lines.model_dump().items():
+                    print(field, getattr(line, field))
                     if getattr(line, field) is None:
+                        print("   <--", value)
                         setattr(line, field, value)
         if self.customer is None:
             self.customer = defaults.customer

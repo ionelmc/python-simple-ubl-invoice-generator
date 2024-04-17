@@ -48,11 +48,11 @@ def generate(template_path: Path, config_data: dict, destination_path: Path):
         total = Decimal(0)
         for line in invoice.lines:
             price = line.price
-            line_total = line.amount * price
-            line.total = line_total.quantize(DOT01, rounding=line.rounding)
-            line.price = price.quantize(DOT0001)
+            line_total = (line.amount * price).quantize(*line.rounding).quantize(DOT01)
             total += line_total
-        invoice.total = total.quantize(DOT01, rounding=invoice.rounding)
+            line.total = line_total
+            line.price = price.quantize(DOT0001)
+        invoice.total = total.quantize(*invoice.rounding).quantize(DOT01)
         invoice.id = invoice_id
         try:
             invoice.model_validate(invoice, strict=True)
