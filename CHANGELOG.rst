@@ -2,6 +2,12 @@
 Changelog
 =========
 
+0.3.0 (2024-05-07)
+------------------
+
+* Changed validation to use Pydantic.
+* Added rounding options.
+
 0.2.0 (2024-04-09)
 ------------------
 
