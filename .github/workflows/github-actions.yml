@@ -1,5 +1,5 @@
 name: build
-on: [push, pull_request]
+on: [push, pull_request, workflow_dispatch]
 jobs:
   test:
     name: ${{ matrix.name }}
@@ -54,3 +54,6 @@ jobs:
     - uses: coverallsapp/github-action@v2
       with:
         parallel-finished: true
+    - uses: codecov/codecov-action@v3
+      with:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
