@@ -44,7 +44,7 @@ supplier.iban
 )
 def test_validation(tmp_path, tests_path, config, error):
     with pytest.raises(ConfigError) as exc:
-        generate(template_path, tomllib.loads(tests_path.joinpath(config).read_text(), parse_float=Decimal), tmp_path)
+        generate(template_path, tomllib.loads(tests_path.joinpath(config).read_text(), parse_float=Decimal), tmp_path, None)
     traceback.print_exception(exc.value)
     assert str(exc.value) == error
 
@@ -57,7 +57,7 @@ def test_validation(tmp_path, tests_path, config, error):
     ],
 )
 def test_generation(tmp_path, tests_path, config):
-    generate(template_path, tomllib.loads(tests_path.joinpath(config).read_text(), parse_float=Decimal), tmp_path)
+    generate(template_path, tomllib.loads(tests_path.joinpath(config).read_text(), parse_float=Decimal), tmp_path, None)
     assert (
         tmp_path.joinpath("FACT001.xml").read_text()
         == """<?xml version="1.0" encoding="UTF-8"?>
@@ -163,7 +163,7 @@ def test_generation(tmp_path, tests_path, config):
 
 
 def test_filename(tmp_path, tests_path):
-    generate(template_path, tomllib.loads(tests_path.joinpath("test_filename.toml").read_text(), parse_float=Decimal), tmp_path)
+    generate(template_path, tomllib.loads(tests_path.joinpath("test_filename.toml").read_text(), parse_float=Decimal), tmp_path, None)
     assert [f.name for f in tmp_path.iterdir()] == [
         "2001-01 FACT001 QWER S.R.L.xml",
         "2001-01 FACT002.xml",
@@ -370,5 +370,22 @@ def test_filename(tmp_path, tests_path):
         </cac:Price>
     </cac:InvoiceLine>
 </Invoice>
+"""
+    )
+
+
+def test_csv(tmp_path, tests_path):
+    csv_path = tmp_path / "invoices.csv"
+    generate(template_path, tomllib.loads(tests_path.joinpath("test_filename.toml").read_text(), parse_float=Decimal), tmp_path, csv_path)
+    assert {f.name for f in tmp_path.iterdir()} == {
+        "2001-01 FACT001 QWER S.R.L.xml",
+        "2001-01 FACT002.xml",
+        "invoices.csv",
+    }
+    assert (
+        csv_path.read_text()
+        == """id,customer_id,customer_name,date,due,filename,total
+FACT001,RO234,QWER S.R.L,2001-01-01,2001-01-02,2001-01 FACT001 QWER S.R.L.xml,1230.00
+FACT002,RO234,QWER S.R.L,2001-01-01,2001-01-02,2001-01 FACT002.xml,1230.00
 """
     )

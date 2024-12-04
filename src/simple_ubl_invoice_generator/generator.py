@@ -49,8 +49,8 @@ def generate(template_path: Path, config_data: dict, destination_path: Path, csv
                 raise ConfigError(f"Failed processing {invoice_id}: Customer {customer!r} not in customers table.")
         total = Decimal(0)
         for line in invoice.lines:
-            price = line.price
-            line_total = line.amount * price
+            price = Decimal(line.price)
+            line_total = Decimal(line.amount) * price
             if line.rounding:
                 line_total = line_total.quantize(*line.rounding)
             line_total = line_total.quantize(DOT01)
@@ -87,7 +87,7 @@ def generate(template_path: Path, config_data: dict, destination_path: Path, csv
         )
 
     if csv is not None:
-        with csv.open("w") as fh:
+        with csv.open("w", encoding="utf-8") as fh:
             writer = DictWriter(fh, ["id", "customer_id", "customer_name", "date", "due", "filename", "total"])
             writer.writeheader()
             writer.writerows(summary)
