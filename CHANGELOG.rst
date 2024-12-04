@@ -2,6 +2,11 @@
 Changelog
 =========
 
+0.4.1 (2024-12-04)
+------------------
+
+* Added missing newline translation for csv (fixes empty rows in csv).
+
 0.4.0 (2024-12-04)
 ------------------
 

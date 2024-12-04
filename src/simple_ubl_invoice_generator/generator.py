@@ -87,7 +87,7 @@ def generate(template_path: Path, config_data: dict, destination_path: Path, csv
         )
 
     if csv is not None:
-        with csv.open("w", encoding="utf-8") as fh:
+        with csv.open("w", encoding="utf-8", newline="") as fh:
             writer = DictWriter(fh, ["id", "customer_id", "customer_name", "date", "due", "filename", "total"])
             writer.writeheader()
             writer.writerows(summary)
