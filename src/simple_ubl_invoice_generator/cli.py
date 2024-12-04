@@ -45,6 +45,14 @@ parser.add_argument(
     help="Invoice UBL Jinja2 template. Default: %(default)s",
 )
 parser.add_argument(
+    "--csv",
+    "-c",
+    metavar="CSV",
+    default=None,
+    type=Path,
+    help="Output CSV summary with all the invoices.",
+)
+parser.add_argument(
     "--output-path",
     "-o",
     metavar="OUTPUT_PATH",
@@ -76,5 +84,5 @@ def run(args=None):
 
     logger.debug("Loaded %s", pformat(config))
 
-    generate(args.template, config, args.output_path)
+    generate(args.template, config, args.output_path, args.csv)
     parser.exit(0)

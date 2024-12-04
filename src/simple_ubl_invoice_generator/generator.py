@@ -1,3 +1,4 @@
+from csv import DictWriter
 from decimal import Decimal
 from logging import getLogger
 from pathlib import Path
@@ -17,7 +18,7 @@ class ConfigError(Exception):
     pass
 
 
-def generate(template_path: Path, config_data: dict, destination_path: Path):
+def generate(template_path: Path, config_data: dict, destination_path: Path, csv: Path | None):
     try:
         config: Config = Config(**config_data)
     except ValidationError as exc:
@@ -35,6 +36,7 @@ def generate(template_path: Path, config_data: dict, destination_path: Path):
     supplier = config.supplier
     customers = config.customers
     defaults = config.defaults
+    summary = []
     for invoice_id, invoice in config.invoices.items():
         invoice.update_defaults(defaults)
         customer = invoice.customer
@@ -72,3 +74,20 @@ def generate(template_path: Path, config_data: dict, destination_path: Path):
                 supplier=supplier,
             )
         )
+        summary.append(
+            {
+                "id": invoice.id,
+                "customer_id": invoice.customer.fiscal_id,
+                "customer_name": invoice.customer.name,
+                "date": invoice.date,
+                "due": invoice.due,
+                "filename": filename,
+                "total": invoice.total,
+            }
+        )
+
+    if csv is not None:
+        with csv.open("w") as fh:
+            writer = DictWriter(fh, ["id", "customer_id", "customer_name", "date", "due", "filename", "total"])
+            writer.writeheader()
+            writer.writerows(summary)
